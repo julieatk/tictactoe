@@ -1,13 +1,18 @@
 import { useState } from 'react';
+import './App.css';
 
+//single square in the board
 function Square({ value, onSquareClick }) {
+  const className = value === 'X' ? 'square x' : 'square';
+
   return (
-    <button className="square" onClick={onSquareClick}>
+    <button className={className} onClick={onSquareClick}>
       {value}
     </button>
   );
 }
 
+// full game board
 function Board({ xIsNext, squares, onPlay }) {
   function handleClick(i) {
     if (calculateWinner(squares) || squares[i]) {
@@ -17,12 +22,12 @@ function Board({ xIsNext, squares, onPlay }) {
     if (xIsNext) {
       nextSquares[i] = 'X';
     } else {
-      nextSquares[i] = 'O';
+      nextSquares[i] = 'O'; // place x or o depending on whose turn it is
     }
-    onPlay(nextSquares);
+    onPlay(nextSquares); // Notify parent component of the new move
   }
 
-  const winner = calculateWinner(squares);
+  const winner = calculateWinner(squares); // Check if there's a winner
   let status;
   if (winner) {
     status = 'Winner: ' + winner;
@@ -30,6 +35,7 @@ function Board({ xIsNext, squares, onPlay }) {
     status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
 
+   // Rendersing each row of the board using square components
   return (
     <>
       <div className="status">{status}</div>
@@ -52,22 +58,26 @@ function Board({ xIsNext, squares, onPlay }) {
   );
 }
 
+// manages game state
 export default function Game() {
-  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [history, setHistory] = useState([Array(9).fill(null)]); // Track which move we're currently on
   const [currentMove, setCurrentMove] = useState(0);
-  const xIsNext = currentMove % 2 === 0;
-  const currentSquares = history[currentMove];
+  const xIsNext = currentMove % 2 === 0; // Determine if it's X’s turn based on move number
+  const currentSquares = history[currentMove];  // Get the board state for the current move
 
+  // Handle playing a new move
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
-    setCurrentMove(nextHistory.length - 1);
+    setCurrentMove(nextHistory.length - 1); // update current move
   }
 
+    // Handle jumping to an earlier move in the game
   function jumpTo(nextMove) {
     setCurrentMove(nextMove);
   }
 
+  // Generate a list of past moves as buttons
   const moves = history.map((squares, move) => {
     let description;
     if (move > 0) {
@@ -82,6 +92,7 @@ export default function Game() {
     );
   });
 
+  // render board and move history
   return (
     <div className="game">
       <div className="game-board">
@@ -93,6 +104,8 @@ export default function Game() {
     </div>
   );
 }
+
+// checks all winning combinations to determine a winner
 
 function calculateWinner(squares) {
   const lines = [
@@ -111,5 +124,5 @@ function calculateWinner(squares) {
       return squares[a];
     }
   }
-  return null;
+  return null; // No winner yet
 }
